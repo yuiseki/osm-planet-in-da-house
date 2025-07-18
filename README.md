@@ -51,7 +51,9 @@ This document outlines the procedure for running the entire OpenStreetMap planet
     ```
 
     After startup, you can access the following endpoints:
-    - TileServer: `http://localhost:8000`
-    - Nominatim: `http://localhost:8001`
-    - Valhalla: `http://localhost:8002`
-    - Overpass: `http://localhost:8003`
+    - TileServer: `http://localhost:8000` - Vector tile distribution
+    - Nominatim: `http://localhost:8001` - Geocoding and reverse geocoding
+    - Valhalla: `http://localhost:8002` - Route searching
+    - Overpass: `http://localhost:8003` - Advanced spatial queries
+
+    **Note:** By default, Nominatim is configured for `admin` boundaries only, and the Overpass API is set up for Monaco. You can change these settings in the `docker-compose.yml` file.

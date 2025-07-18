@@ -9,6 +9,7 @@
         "nominatim",
         "onthegomap",
         "planetiler",
+        "runworld",
         "sparsearray",
         "tileserver",
         "wiktorn"

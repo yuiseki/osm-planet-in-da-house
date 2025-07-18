@@ -51,7 +51,9 @@ OpenStreetMapの惑星データ全体をローカル環境で実行するため�
     ```
 
     起動後、以下のエンドポイントにアクセスできます。
-    - TileServer: `http://localhost:8000`
-    - Nominatim: `http://localhost:8001`
-    - Valhalla: `http://localhost:8002`
-    - Overpass: `http://localhost:8003`
+    - TileServer: `http://localhost:8000` - ベクトルタイル配信
+    - Nominatim: `http://localhost:8001` - ジオコーディングと逆ジオコーディング
+    - Valhalla: `http://localhost:8002` - ルート探索
+    - Overpass: `http://localhost:8003` - 高度な空間クエリ
+
+    **注意:** デフォルトでは、Nominatimは`admin`（行政境界）のみ、Overpass APIはモナコのデータのみを対象としています。これらの設定は`docker-compose.yml`で変更可能です。
