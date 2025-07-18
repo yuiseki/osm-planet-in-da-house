@@ -6,7 +6,7 @@ docker run \
     -e OVERPASS_DIFF_URL=http://download.openstreetmap.fr/replication/europe/monaco/minute/ \
     -e OVERPASS_RULES_LOAD=10 \
     -v ./data/overpass_db/:/db \
-    -p 8002:80 \
+    -p 8003:80 \
     --name overpass_monaco \
     wiktorn/overpass-api
 
