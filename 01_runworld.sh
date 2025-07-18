@@ -1,3 +1,6 @@
+latest_url=$(curl -LIs --max-redirs 1 -o /dev/null -w '%{url_effective}' 'https://planet.openstreetmap.org/pbf/planet-latest.osm.pbf' || true)
+latest_osm_pbf=$(basename "$latest_url")
+
 docker run \
     -u `id -u`:`id -g` \
     --memory 90g \
@@ -14,5 +17,5 @@ docker run \
         --fetch-wikidata \
         --nodemap-type=sparsearray \
         --nodemap-storage=mmap \
-        --osm-path=/data/planet-250707.osm.pbf \
+        --osm-path=/data/${latest_osm_pbf} \
         --force
