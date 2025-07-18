@@ -8,8 +8,8 @@ services:
       - "8000:8080"
     volumes:
       - ./data:/data
-      - ./scripts/wait-for-mbtiles.sh:/usr/local/bin/wait-for-mbtiles.sh
-    command: /usr/local/bin/wait-for-mbtiles.sh
+      - ./scripts/wait-for-path.sh:/usr/local/bin/wait-for-path.sh
+    entrypoint: ["/usr/local/bin/wait-for-path.sh", "/data/*.mbtiles", "/run.sh"]
     tty: true
     stdin_open: true
 
@@ -26,9 +26,11 @@ services:
       - nominatim-flatnode:/nominatim/flatnode
       - nominatim-postgresql:/var/lib/postgresql/16/main
       - ./data:/nominatim/data
+      - ./scripts/wait-for-path.sh:/usr/local/bin/wait-for-path.sh
     environment:
       - PBF_PATH=/nominatim/data/planet-latest.osm.pbf
       - IMPORT_STYLE=admin
+    entrypoint: ["/usr/local/bin/wait-for-path.sh", "/nominatim/data/planet-latest.osm.pbf", "/usr/local/bin/entrypoint.sh"]
     tty: true
     stdin_open: true
 
@@ -39,6 +41,8 @@ services:
       - "8002:8002"
     volumes:
       - ./data:/custom_files
+      - ./scripts/wait-for-path.sh:/usr/local/bin/wait-for-path.sh
+    entrypoint: ["/usr/local/bin/wait-for-path.sh", "/custom_files/planet-latest.osm.pbf", "/app/entrypoint.sh"]
     tty: true
     stdin_open: true
 
@@ -46,8 +50,6 @@ services:
     image: wiktorn/overpass-api
     container_name: overpass_monaco
     ports:
-      # The original script used port 8002, which conflicts with valhalla.
-      # Changed to 8003 based on the script name 8003_overpass.sh.
       - "8003:80"
     volumes:
       - ./data/overpass_db:/db
