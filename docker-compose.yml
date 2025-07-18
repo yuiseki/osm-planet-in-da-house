@@ -8,6 +8,8 @@ services:
       - "8000:8080"
     volumes:
       - ./data:/data
+      - ./scripts/wait-for-mbtiles.sh:/usr/local/bin/wait-for-mbtiles.sh
+    command: /usr/local/bin/wait-for-mbtiles.sh
     tty: true
     stdin_open: true
 
