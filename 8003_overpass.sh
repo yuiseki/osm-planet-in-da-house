@@ -1,16 +1,13 @@
-export OVERPASS_PLANET_PREPROCESS="osmium cat /data/planet.osm.pbf -o /db/planet.osm.bz2 --overwrite"
-
 docker run \
-    -d \
-    --memory=80g \
-    -e OVERPASS_META=yes \
-    -e OVERPASS_MODE=init \
-    -e OVERPASS_PLANET_URL=file:///db/planet.osm.bz2 \
-    -e OVERPASS_DIFF_URL=https://planet.openstreetmap.org/replication/minute/ \
-    -e OVERPASS_RULES_LOAD=10 \
-    -e OVERPASS_PLANET_PREPROCESS \
-    -v ./data/planet-latest.osm.pbf:/data/planet.osm.pbf:ro \
-    -v ./data/overpass_db_planet/:/db \
-    -p 8003:80 \
+    --memory=40g \
     --name overpass_planet \
+    -e OVERPASS_MODE=init \
+    -e OVERPASS_META=yes \
+    -e OVERPASS_PLANET_URL=file:///data/planet.osm.pbf \
+    -e OVERPASS_COMPRESSION=lz4 \
+    -e OVERPASS_RULES_LOAD=50 \
+    -e OVERPASS_PLANET_PREPROCESS='osmium cat /data/planet.osm.pbf -o /db/planet.osm.bz2 --overwrite' \
+    -v $(pwd)/data/overpass/db_planet/:/db \
+    -v /everything/osm/planet/planet-latest.osm.pbf:/data/planet.osm.pbf:ro \
+    -p 8003:80 \
     wiktorn/overpass-api
