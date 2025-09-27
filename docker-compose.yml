@@ -1,64 +1,47 @@
 services:
-  tileserver:
-    image: maptiler/tileserver-gl:latest
-    container_name: tileserver
-    ports:
-      - "8000:8080"
-    volumes:
-      - ./data:/data
-    entrypoint:
-      - sh
-      - -c
-      - |
-        echo "Waiting for files matching pattern '*.mbtiles' in directory '/data'..."
-        while ! find "/data" -maxdepth 1 -name "*.mbtiles" -print -quit | grep -q .; do
-          echo "Still waiting for files matching: /data/*.mbtiles"
-          sleep 10
-        done
-        echo "Found file(s) matching '/data/*.mbtiles'."
-        echo "Executing: /usr/src/app/docker-entrypoint.sh"
-        exec /usr/src/app/docker-entrypoint.sh
-    tty: true
-    stdin_open: true
-
   nominatim:
     image: mediagis/nominatim:5.1
     container_name: nominatim_planet
     mem_limit: 20g
     memswap_limit: 20g
-    mem_swappiness: 10
-    shm_size: 24g
+    shm_size: 20g
     ports:
       - "8001:8080"
     volumes:
-      - nominatim-flatnode:/nominatim/flatnode
-      - nominatim-postgresql:/var/lib/postgresql/16/main
-      - ./data:/nominatim/data
+      - $PWD/data/nominatim/flatnode:/nominatim/flatnode
+      - $PWD/data/nominatim/postgres:/var/lib/postgresql/16/main
+      - $PWD/data/nominatim/data:/nominatim/data
     environment:
       - PBF_PATH=/nominatim/data/planet-latest.osm.pbf
-      - IMPORT_STYLE=admin
-    entrypoint:
-      - sh
-      - -c
-      - |
-        echo "Waiting for file: /nominatim/data/planet-latest.osm.pbf..."
-        while [ ! -f "/nominatim/data/planet-latest.osm.pbf" ]; do
-          echo "Still waiting for file: /nominatim/data/planet-latest.osm.pbf"
-          sleep 10
-        done
-        echo "Found file: /nominatim/data/planet-latest.osm.pbf."
-        echo "Executing: /usr/local/bin/nominatim serve"
-        exec /usr/local/bin/nominatim serve
+      - IMPORT_WIKIDATA=true
     tty: true
     stdin_open: true
+
+  overpass:
+    image: wiktorn/overpass-api
+    container_name: overpass
+    mem_limit: 20g
+    memswap_limit: 20g
+    shm_size: 20g
+    ports:
+      - "8002:80"
+    volumes:
+      - $PWD/data/overpass/db_planet:/db
+      - /everything/osm/planet/planet-250915.osm.pbf:/data/planet-latest.osm.pbf:ro
+    environment:
+      - OVERPASS_MODE=init
+      - OVERPASS_META=yes
+      - OVERPASS_PLANET_URL=file:///data/planet-latest.osm.pbf
+      - OVERPASS_COMPRESSION=lz4
+      - OVERPASS_RULES_LOAD=50
 
   valhalla:
     image: ghcr.io/nilsnolde/docker-valhalla/valhalla:latest
     container_name: valhalla_gis-ops
     ports:
-      - "8002:8002"
+      - "8003:8002"
     volumes:
-      - ./data:/custom_files
+      - $PWD/data/valhalla/custom_files:/custom_files
     environment:
       - CONFIG_FILE=/custom_files/valhalla.json
     entrypoint:
@@ -75,23 +58,3 @@ services:
         exec /valhalla/scripts/run.sh build_tiles
     tty: true
     stdin_open: true
-
-  overpass:
-    image: wiktorn/overpass-api
-    container_name: overpass_monaco
-    ports:
-      - "8003:80"
-    volumes:
-      - ./data/overpass_db:/db
-    environment:
-      - OVERPASS_META=yes
-      - OVERPASS_MODE=init
-      - OVERPASS_PLANET_URL=http://download.geofabrik.de/europe/monaco-latest.osm.bz2
-      - OVERPASS_DIFF_URL=http://download.openstreetmap.fr/replication/europe/monaco/minute/
-      - OVERPASS_RULES_LOAD=10
-
-volumes:
-  nominatim-flatnode:
-    driver: local
-  nominatim-postgresql:
-    driver: local
