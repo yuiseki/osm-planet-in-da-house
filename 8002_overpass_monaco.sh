@@ -5,10 +5,11 @@ docker run \
   --rm -it \
   --name overpass_monaco_init \
   -e OVERPASS_MODE=init \
+  -e OVERPASS_STOP_AFTER_INIT=true \
   -e OVERPASS_META=yes \
-  -e OVERPASS_PLANET_URL=http://download.geofabrik.de/europe/monaco-latest.osm.pbf \
-  -e OVERPASS_DIFF_URL=http://download.openstreetmap.fr/replication/europe/monaco/minute/ \
   -e OVERPASS_RULES_LOAD=50 \
+  -e OVERPASS_PLANET_URL=http://download.geofabrik.de/europe/monaco-latest.osm.pbf \
+  -e OVERPASS_PLANET_PREPROCESS='mv /db/planet.osm.bz2 /db/planet.osm.pbf && osmium cat -o /db/planet.osm.bz2 /db/planet.osm.pbf && rm /db/planet.osm.pbf' \
   -v $(pwd)/data/overpass/db_monaco/:/db \
   wiktorn/overpass-api
 
