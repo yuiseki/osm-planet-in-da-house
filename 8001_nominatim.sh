@@ -16,10 +16,10 @@ docker run \
 
     sudo chown -R postgres:postgres /var/lib/postgresql || true
 
+    id -u nominatim >/dev/null 2>&1 || useradd -m -r -s /usr/sbin/nologin nominatim
+
     /app/config.sh
     /app/init.sh
-
-    id -u nominatim >/dev/null 2>&1 || useradd -m -r -s /usr/sbin/nologin nominatim
 
     service postgresql start || true
     echo "Waiting for PostgreSQL to become ready..."
