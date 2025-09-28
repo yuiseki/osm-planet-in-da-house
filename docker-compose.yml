@@ -19,21 +19,25 @@ services:
 
   overpass:
     image: wiktorn/overpass-api
-    container_name: overpass
-    mem_limit: 20g
-    memswap_limit: 20g
-    shm_size: 20g
+    container_name: overpass_planet
+    mem_limit: 48g
+    memswap_limit: 48g
+    shm_size: 8g
     ports:
       - "8002:80"
     volumes:
       - $PWD/data/overpass/db_planet:/db
-      - /everything/osm/planet/planet-250915.osm.pbf:/data/planet-latest.osm.pbf:ro
     environment:
-      - OVERPASS_MODE=init
+      - OVERPASS_MODE=clone
+      - OVERPASS_DIFF_URL=https://planet.openstreetmap.org/replication/minute/
       - OVERPASS_META=yes
-      - OVERPASS_PLANET_URL=file:///data/planet-latest.osm.pbf
-      - OVERPASS_COMPRESSION=lz4
-      - OVERPASS_RULES_LOAD=50
+      - OVERPASS_USE_AREAS=true
+      - OVERPASS_FASTCGI_PROCESSES=12
+      - OVERPASS_RATE_LIMIT=10
+      - OVERPASS_MAX_TIMEOUT=1800
+      - OVERPASS_TIME=1800
+      - OVERPASS_SPACE=34359738368
+    restart: unless-stopped
 
   valhalla:
     image: ghcr.io/nilsnolde/docker-valhalla/valhalla:latest
