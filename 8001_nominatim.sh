@@ -14,7 +14,10 @@ docker run \
   --entrypoint bash mediagis/nominatim:5.1 -lc '
     set -euo pipefail
 
+    sudo chown -R postgres:postgres /var/lib/postgresql || true
+
     /app/config.sh
+    /app/init.sh
 
     id -u nominatim >/dev/null 2>&1 || useradd -m -r -s /usr/sbin/nologin nominatim
 
