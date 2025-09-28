@@ -20,44 +20,4 @@ docker run \
 
     /app/config.sh
     /app/init.sh
-
-    service postgresql start || true
-    echo "Waiting for PostgreSQL to become ready..."
-    for i in $(seq 1 3600); do
-      pg_isready -h 127.0.0.1 -p 5432 -U postgres >/dev/null 2>&1 && break
-      sleep 1
-    done
-    pg_isready -h 127.0.0.1 -p 5432 -U postgres >/dev/null 2>&1 || {
-      echo "PostgreSQL did not become ready in time."; exit 1; }
-
-    sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='\''nominatim'\''" | grep -q 1 || \
-      sudo -u postgres createuser -s nominatim
-    sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='\''www-data'\''" | grep -q 1 || \
-      sudo -u postgres createuser -SDR www-data
-
-    chown -R nominatim:nominatim /nominatim || true
-    cd /nominatim
-
-    if sudo -u nominatim nominatim admin --project-dir /nominatim --check-database >/dev/null 2>&1; then
-      echo "Database already valid. Skipping import."
-      touch /var/lib/postgresql/16/main/import-finished
-      exit 0
-    fi
-
-    if sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='\''nominatim'\''" | grep -q 1; then
-      echo "Dropping existing database nominatim..."
-      sudo -u postgres psql -c "DROP DATABASE IF EXISTS nominatim WITH (FORCE);"
-    fi
-
-    if [ -f /var/lib/postgresql/16/main/import-finished ]; then
-      echo "Import already finished. Nothing to do."; exit 0; fi
-
-    sudo -E -u nominatim nominatim import \
-      --project-dir /nominatim \
-      --osm-file "$PBF_PATH" \
-      --osm2pgsql-cache 0 \
-      --threads 16 \
-      --no-updates
-
-    touch /var/lib/postgresql/16/main/import-finished
   '
