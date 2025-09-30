@@ -1,19 +1,16 @@
 services:
   nominatim:
     image: mediagis/nominatim:5.1
-    container_name: nominatim_planet
+    container_name: nominatim_planet_admin
     mem_limit: 20g
     memswap_limit: 20g
     shm_size: 20g
     ports:
       - "8001:8080"
     volumes:
-      - $PWD/data/nominatim/flatnode:/nominatim/flatnode
-      - $PWD/data/nominatim/postgres:/var/lib/postgresql/16/main
-      - $PWD/data/nominatim/data:/nominatim/data
-    environment:
-      - PBF_PATH=/nominatim/data/planet-latest.osm.pbf
-      - IMPORT_WIKIDATA=true
+      - $PWD/data/nominatim/planet_admin/flatnode:/nominatim/flatnode
+      - $PWD/data/nominatim/planet_admin/postgres:/var/lib/postgresql/16/main
+      - $PWD/data/nominatim/planet_admin/data:/nominatim/data
     tty: true
     stdin_open: true
 
