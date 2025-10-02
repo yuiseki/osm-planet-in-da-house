@@ -13,13 +13,5 @@ docker run \
   -v $(pwd)/data/nominatim/planet/flatnode:/nominatim/flatnode \
   -v $(pwd)/data/nominatim/planet/postgres:/var/lib/postgresql/16/main \
   -v $(pwd)/data/nominatim/data:/nominatim/data \
-  --entrypoint bash mediagis/nominatim:5.1 -lc '
-    set -euo pipefail
-
-    sudo chown -R postgres:postgres /var/lib/postgresql || true
-
-    id -u nominatim >/dev/null 2>&1 || useradd -m -r -s /usr/sbin/nologin nominatim
-
-    /app/config.sh
-    /app/init.sh
-  '
+  -p 8001:8080 \
+  mediagis/nominatim:5.1
