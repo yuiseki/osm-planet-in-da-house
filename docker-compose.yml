@@ -10,7 +10,7 @@ services:
     volumes:
       - $PWD/data/nominatim/planet_admin/flatnode:/nominatim/flatnode
       - $PWD/data/nominatim/planet_admin/postgres:/var/lib/postgresql/16/main
-      - $PWD/data/nominatim/planet_admin/data:/nominatim/data
+      - $PWD/data/nominatim/data:/nominatim/data
     tty: true
     stdin_open: true
 

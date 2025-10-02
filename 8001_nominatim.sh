@@ -4,13 +4,15 @@ docker run \
   --shm-size=64g \
   --ulimit nofile=1048576:1048576 \
   --rm -it \
-  --name nominatim_planet_init \
+  --name nominatim_planet \
+  -e THREADS=16 \
+  -e FREEZE=true \
   -e PBF_PATH=/nominatim/data/planet-latest.osm.pbf \
+  -e IMPORT_WIKIPEDIA=/nominatim/data/wikimedia-importance.csv.gz \
   -e NOMINATIM_FLATNODE_FILE=/nominatim/flatnode/flatnode.file \
-  -e IMPORT_WIKIPEDIA=true \
   -v $(pwd)/data/nominatim/planet/flatnode:/nominatim/flatnode \
   -v $(pwd)/data/nominatim/planet/postgres:/var/lib/postgresql/16/main \
-  -v $(pwd)/data/nominatim/planet/data:/nominatim/data \
+  -v $(pwd)/data/nominatim/data:/nominatim/data \
   --entrypoint bash mediagis/nominatim:5.1 -lc '
     set -euo pipefail
 
