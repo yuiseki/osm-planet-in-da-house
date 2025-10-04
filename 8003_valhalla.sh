@@ -4,5 +4,5 @@ docker run \
   --shm-size=16g \
   --name valhalla_gis-ops \
   --rm -it \
-  -v $PWD/data:/custom_files \
+  -v $PWD/data/valhalla:/custom_files \
   ghcr.io/nilsnolde/docker-valhalla/valhalla:latest
