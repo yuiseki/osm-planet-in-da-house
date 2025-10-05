@@ -30,7 +30,7 @@ services:
     ports:
       - "8002:80"
     volumes:
-      - $PWD/data/overpass/db_planet:/db
+      - ${PWD}/data/overpass/db_planet:/db
     environment:
       - OVERPASS_MODE=clone
       - OVERPASS_META=yes
@@ -48,7 +48,7 @@ services:
     ports:
       - "8003:8002"
     volumes:
-      - $PWD/data/valhalla/custom_files:/custom_files
+      - ${PWD}/data/valhalla/custom_files:/custom_files
     environment:
       - CONFIG_FILE=/custom_files/valhalla.json
     entrypoint:
