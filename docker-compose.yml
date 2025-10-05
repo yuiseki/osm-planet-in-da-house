@@ -48,20 +48,8 @@ services:
     ports:
       - "8003:8002"
     volumes:
-      - ${PWD}/data/valhalla/custom_files:/custom_files
+      - ${PWD}/data/valhalla:/custom_files
     environment:
       - CONFIG_FILE=/custom_files/valhalla.json
-    entrypoint:
-      - sh
-      - -c
-      - |
-        echo "Waiting for file: /custom_files/planet-latest.osm.pbf..."
-        while [ ! -f "/custom_files/planet-latest.osm.pbf" ]; do
-          echo "Still waiting for file: /custom_files/planet-latest.osm.pbf"
-          sleep 10
-        done
-        echo "Found file: /custom_files/planet-latest.osm.pbf."
-        echo "Executing: /valhalla/scripts/run.sh build_tiles"
-        exec /valhalla/scripts/run.sh build_tiles
     tty: true
     stdin_open: true
