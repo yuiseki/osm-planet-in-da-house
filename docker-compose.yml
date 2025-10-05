@@ -50,6 +50,9 @@ services:
     volumes:
       - ${PWD}/data/valhalla:/custom_files
     environment:
-      - CONFIG_FILE=/custom_files/valhalla.json
+      - use_tiles_ignore_pbf=True
+      - force_rebuild=False
+      - server_threads=8
+      - serve_tiles=True
     tty: true
     stdin_open: true
