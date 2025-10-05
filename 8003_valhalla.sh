@@ -6,5 +6,7 @@ docker run \
   --rm -it \
   --name valhalla_planet \
   -e serve_tiles=False \
+  -e use_tiles_ignore_pbf=False \
+  -e force_rebuild=True \
   -v $PWD/data/valhalla:/custom_files \
   ghcr.io/valhalla/valhalla-scripted:latest
