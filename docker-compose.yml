@@ -43,8 +43,8 @@ services:
     restart: unless-stopped
 
   valhalla:
-    image: ghcr.io/nilsnolde/docker-valhalla/valhalla:latest
-    container_name: valhalla_gis-ops
+    image: ghcr.io/valhalla/valhalla-scripted:latest
+    container_name: valhalla_planet
     ports:
       - "8003:8002"
     volumes:

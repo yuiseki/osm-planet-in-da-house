@@ -4,7 +4,7 @@ docker run \
   --shm-size=16g \
   --ulimit nofile=1048576:1048576 \
   --rm -it \
-  --name valhalla_gis-ops \
+  --name valhalla_planet \
   -e serve_tiles=False \
   -v $PWD/data/valhalla:/custom_files \
-  ghcr.io/nilsnolde/docker-valhalla/valhalla:latest
+  ghcr.io/valhalla/valhalla-scripted:latest
