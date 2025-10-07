@@ -13,5 +13,4 @@ docker run \
   -v $(pwd)/data/nominatim/planet/flatnode:/nominatim/flatnode \
   -v $(pwd)/data/nominatim/planet/postgres:/var/lib/postgresql/16/main \
   -v $(pwd)/data/nominatim/data:/nominatim/data \
-  -p 8001:8080 \
   mediagis/nominatim:5.1
