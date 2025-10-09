@@ -1,7 +1,7 @@
 services:
   nominatim:
     image: mediagis/nominatim:5.1
-    container_name: nominatim_planet_admin
+    container_name: nominatim_planet
     mem_limit: 20g
     memswap_limit: 20g
     shm_size: 20g
@@ -15,8 +15,8 @@ services:
       - NOMINATIM_FLATNODE_FILE=/nominatim/flatnode/flatnode.file
       - IMPORT_STYLE=admin
     volumes:
-      - ${PWD}/data/nominatim/planet_admin/flatnode:/nominatim/flatnode
-      - ${PWD}/data/nominatim/planet_admin/postgres:/var/lib/postgresql/16/main
+      - ${PWD}/data/nominatim/planet/flatnode:/nominatim/flatnode
+      - ${PWD}/data/nominatim/planet/postgres:/var/lib/postgresql/16/main
       - ${PWD}/data/nominatim/data:/nominatim/data
     tty: true
     stdin_open: true
