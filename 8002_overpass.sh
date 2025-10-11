@@ -10,7 +10,7 @@ docker run \
   -e OVERPASS_RULES_LOAD=80 \
   -e OVERPASS_PLANET_URL=file:///data/planet.osm.pbf \
   -e OVERPASS_COMPRESSION=lz4 \
-  -e OVERPASS_PLANET_PREPROCESS='osmium cat /data/planet.osm.pbf -f osm -o /db/planet.osm.bz2 --overwrite' \
+  -e OVERPASS_PLANET_PREPROCESS='osmium cat /data/planet.osm.pbf -f osm.bz2 -o /db/planet.osm.bz2 --overwrite' \
   -v $(pwd)/data/overpass/db_planet/:/db \
   -v $(pwd)/data/overpass/planet-latest.osm.pbf:/data/planet.osm.pbf:ro \
   wiktorn/overpass-api
