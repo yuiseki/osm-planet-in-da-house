@@ -8,12 +8,11 @@ services:
     ports:
       - "8001:8080"
     environment:
-      - THREADS=8
+      - THREADS=16
       - FREEZE=true
       - PBF_PATH=/nominatim/data/planet-latest.osm.pbf
       - IMPORT_WIKIPEDIA=/nominatim/data/wikimedia-importance.csv.gz
       - NOMINATIM_FLATNODE_FILE=/nominatim/flatnode/flatnode.file
-      - IMPORT_STYLE=admin
     volumes:
       - ${PWD}/data/nominatim/planet/flatnode:/nominatim/flatnode
       - ${PWD}/data/nominatim/planet/postgres:/var/lib/postgresql/16/main
@@ -34,6 +33,7 @@ services:
     environment:
       - OVERPASS_MODE=clone
       - OVERPASS_META=yes
+      - OVERPASS_RULES_LOAD=80
       - OVERPASS_USE_AREAS=true
       - OVERPASS_FASTCGI_PROCESSES=12
       - OVERPASS_RATE_LIMIT=10
