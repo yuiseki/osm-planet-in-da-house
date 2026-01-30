@@ -56,3 +56,15 @@ services:
       - serve_tiles=True
     tty: true
     stdin_open: true
+
+  taginfo:
+    build:
+      context: ./docker/taginfo
+      dockerfile: Dockerfile
+    container_name: taginfo_web
+    ports:
+      - "8004:4567"
+    volumes:
+      - ${PWD}/data/taginfo:/usr/src/app/data
+      - ${PWD}/docker/taginfo/taginfo-config.json:/usr/src/app/taginfo-config.json:ro
+    restart: unless-stopped

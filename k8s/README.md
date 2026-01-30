@@ -18,6 +18,7 @@ kubectl delete -f k8s
 
 ```bash
 kubectl rollout restart deployment/nominatim deployment/overpass deployment/valhalla
+kubectl rollout restart deployment/taginfo
 ```
 
 ## 状態確認
@@ -34,6 +35,7 @@ kubectl get services
 kubectl delete pod -l app=nominatim
 kubectl delete pod -l app=overpass
 kubectl delete pod -l app=valhalla
+kubectl delete pod -l app=taginfo
 ```
 
 ## ログ確認
@@ -42,6 +44,7 @@ kubectl delete pod -l app=valhalla
 kubectl logs -f deployment/nominatim
 kubectl logs -f deployment/overpass
 kubectl logs -f deployment/valhalla
+kubectl logs -f deployment/taginfo
 ```
 
 ## 直接アクセス（hostPort）
@@ -49,7 +52,17 @@ kubectl logs -f deployment/valhalla
 - nominatim: http://<node-ip>:8001
 - overpass: http://<node-ip>:8002
 - valhalla: http://<node-ip>:8003
+- taginfo: http://<node-ip>:8004
 
 ### 動作確認の注意
 
 - valhalla は `/` が 404 でも正常
+- taginfo は `/api/4/keys/all?format=json&rp=1&page=1` などで疎通確認
+
+## containerd にローカルイメージを取り込む（taginfo）
+
+taginfo はローカルでビルドしたイメージを使うため、必要に応じて containerd に取り込む。
+
+```bash
+docker save osm-planet-in-da-house-taginfo:latest | ctr -n k8s.io images import -
+```
