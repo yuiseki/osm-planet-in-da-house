@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nominatim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nominatim
+  template:
+    metadata:
+      labels:
+        app: nominatim
+    spec:
+      containers:
+        - name: nominatim
+          image: mediagis/nominatim:5.2
+          ports:
+            - containerPort: 8080
+              hostPort: 8001
+          env:
+            - name: THREADS
+              value: "16"
+            - name: FREEZE
+              value: "true"
+            - name: PBF_PATH
+              value: /nominatim/data/planet-latest.osm.pbf
+            - name: IMPORT_WIKIPEDIA
+              value: /nominatim/data/wikimedia-importance.csv.gz
+            - name: NOMINATIM_FLATNODE_FILE
+              value: /nominatim/flatnode/flatnode.file
+          resources:
+            requests:
+              memory: 20Gi
+            limits:
+              memory: 20Gi
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: nominatim-flatnode
+              mountPath: /nominatim/flatnode
+            - name: nominatim-postgres
+              mountPath: /var/lib/postgresql/16/main
+            - name: nominatim-data
+              mountPath: /nominatim/data
+            - name: nominatim-shm
+              mountPath: /dev/shm
+      volumes:
+        - name: nominatim-flatnode
+          hostPath:
+            path: /everything/src/github.com/yuiseki/osm-planet-in-da-house/data/nominatim/planet/flatnode
+            type: Directory
+        - name: nominatim-postgres
+          hostPath:
+            path: /everything/src/github.com/yuiseki/osm-planet-in-da-house/data/nominatim/planet/postgres
+            type: Directory
+        - name: nominatim-data
+          hostPath:
+            path: /everything/src/github.com/yuiseki/osm-planet-in-da-house/data/nominatim/data
+            type: Directory
+        - name: nominatim-shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nominatim
+spec:
+  selector:
+    app: nominatim
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

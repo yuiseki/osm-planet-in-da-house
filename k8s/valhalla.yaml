@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: valhalla
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: valhalla
+  template:
+    metadata:
+      labels:
+        app: valhalla
+    spec:
+      containers:
+        - name: valhalla
+          image: ghcr.io/valhalla/valhalla-scripted:latest
+          ports:
+            - containerPort: 8002
+              hostPort: 8003
+          env:
+            - name: use_tiles_ignore_pbf
+              value: "true"
+            - name: force_rebuild
+              value: "false"
+            - name: server_threads
+              value: "8"
+            - name: serve_tiles
+              value: "true"
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: valhalla-data
+              mountPath: /custom_files
+      volumes:
+        - name: valhalla-data
+          hostPath:
+            path: /everything/src/github.com/yuiseki/osm-planet-in-da-house/data/valhalla
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: valhalla
+spec:
+  selector:
+    app: valhalla
+  ports:
+    - name: http
+      port: 8002
+      targetPort: 8002
+  type: ClusterIP
