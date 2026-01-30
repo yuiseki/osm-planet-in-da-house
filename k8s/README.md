@@ -50,3 +50,6 @@ kubectl logs -f deployment/valhalla
 - overpass: http://<node-ip>:8002
 - valhalla: http://<node-ip>:8003
 
+### 動作確認の注意
+
+- valhalla は `/` が 404 でも正常

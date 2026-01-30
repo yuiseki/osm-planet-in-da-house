@@ -20,13 +20,13 @@ spec:
               hostPort: 8003
           env:
             - name: use_tiles_ignore_pbf
-              value: "true"
+              value: "True"
             - name: force_rebuild
-              value: "false"
+              value: "False"
             - name: server_threads
               value: "8"
             - name: serve_tiles
-              value: "true"
+              value: "True"
           stdin: true
           tty: true
           volumeMounts:
