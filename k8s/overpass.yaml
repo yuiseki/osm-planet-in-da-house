@@ -4,6 +4,8 @@ metadata:
   name: overpass
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: overpass
@@ -21,7 +23,6 @@ spec:
             - rm -f /dev/shm/osm3s_osm_base /dev/shm/osm3s_areas; exec /usr/bin/python3 /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
           ports:
             - containerPort: 80
-              hostPort: 8002
           env:
             - name: OVERPASS_MODE
               value: clone
@@ -72,4 +73,5 @@ spec:
     - name: http
       port: 80
       targetPort: 80
-  type: ClusterIP
+      nodePort: 30112
+  type: NodePort

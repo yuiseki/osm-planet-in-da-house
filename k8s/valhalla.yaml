@@ -4,6 +4,8 @@ metadata:
   name: valhalla
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: valhalla
@@ -17,7 +19,6 @@ spec:
           image: ghcr.io/valhalla/valhalla-scripted:latest
           ports:
             - containerPort: 8002
-              hostPort: 8003
           env:
             - name: use_tiles_ignore_pbf
               value: "True"
@@ -27,6 +28,8 @@ spec:
               value: "8"
             - name: serve_tiles
               value: "True"
+            - name: update_existing_config
+              value: "False"
           stdin: true
           tty: true
           volumeMounts:
@@ -49,4 +52,5 @@ spec:
     - name: http
       port: 8002
       targetPort: 8002
-  type: ClusterIP
+      nodePort: 30113
+  type: NodePort

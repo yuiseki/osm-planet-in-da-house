@@ -87,7 +87,6 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 4567
-              hostPort: 8004
           volumeMounts:
             - name: taginfo-data
               mountPath: /usr/src/app/data
@@ -117,4 +116,5 @@ spec:
     - name: http
       port: 4567
       targetPort: 4567
-  type: ClusterIP
+      nodePort: 30114
+  type: NodePort

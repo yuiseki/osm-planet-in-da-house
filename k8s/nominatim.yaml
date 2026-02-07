@@ -4,6 +4,8 @@ metadata:
   name: nominatim
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: nominatim
@@ -17,7 +19,6 @@ spec:
           image: mediagis/nominatim:5.2
           ports:
             - containerPort: 8080
-              hostPort: 8001
           env:
             - name: THREADS
               value: "16"
@@ -74,4 +75,5 @@ spec:
     - name: http
       port: 8080
       targetPort: 8080
-  type: ClusterIP
+      nodePort: 30111
+  type: NodePort

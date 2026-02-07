@@ -29,7 +29,7 @@ kubectl get deployments
 kubectl get services
 ```
 
-## 旧 Pod が残って hostPort 競合する場合の対処
+## Pod を作り直す場合
 
 ```bash
 kubectl delete pod -l app=nominatim
@@ -47,12 +47,18 @@ kubectl logs -f deployment/valhalla
 kubectl logs -f deployment/taginfo
 ```
 
-## 直接アクセス（hostPort）
+## 直接アクセス（NodePort）
 
-- nominatim: http://<node-ip>:8001
-- overpass: http://<node-ip>:8002
-- valhalla: http://<node-ip>:8003
-- taginfo: http://<node-ip>:8004
+- nominatim: http://<node-ip>:30111
+- overpass: http://<node-ip>:30112
+- valhalla: http://<node-ip>:30113
+- taginfo: http://<node-ip>:30114
+
+## NodePort の確認
+
+```bash
+kubectl get svc nominatim overpass valhalla taginfo
+```
 
 ### 動作確認の注意
 
