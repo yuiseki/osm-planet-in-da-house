@@ -20,7 +20,7 @@ spec:
           command:
             - /bin/sh
             - -c
-            - rm -f /dev/shm/osm3s_osm_base /dev/shm/osm3s_areas; exec /usr/bin/python3 /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+            - rm -f /dev/shm/osm3s_osm_base /dev/shm/osm3s_areas; exec /app/docker-entrypoint.sh
           ports:
             - containerPort: 80
           env:
@@ -36,6 +36,8 @@ spec:
               value: "12"
             - name: OVERPASS_RATE_LIMIT
               value: "10"
+            - name: OVERPASS_ALLOW_DUPLICATE_QUERIES
+              value: "yes"
             - name: OVERPASS_MAX_TIMEOUT
               value: "60000"
             - name: OVERPASS_TIME
