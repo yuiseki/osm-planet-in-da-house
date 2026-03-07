@@ -57,3 +57,7 @@ OpenStreetMapの惑星データ全体をローカル環境で実行するため�
     - Overpass: `http://localhost:8003` - 高度な空間クエリ
 
     **注意:** デフォルトでは、Nominatimは`admin`（行政境界）のみ、Overpass APIはモナコのデータのみを対象としています。これらの設定は`docker-compose.yml`で変更可能です。
+
+## Raspberry Pi 5 持ち込み評価
+
+Raspberry Pi 5 向けの Overpass 単体起動メモは `README.pi5.ja.md` を参照してください。

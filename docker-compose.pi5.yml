@@ -1,0 +1,24 @@
+services:
+  overpass:
+    image: ${OVERPASS_IMAGE:-wiktorn/overpass-api}
+    container_name: ${OVERPASS_CONTAINER_NAME:-overpass_planet_pi5}
+    platform: ${OVERPASS_PLATFORM:-linux/amd64}
+    mem_limit: ${OVERPASS_MEM_LIMIT:-6g}
+    memswap_limit: ${OVERPASS_MEM_LIMIT:-6g}
+    shm_size: ${OVERPASS_SHM_SIZE:-2g}
+    ports:
+      - "${OVERPASS_PORT:-8002}:80"
+    volumes:
+      - "${OVERPASS_DB_DIR}:/db"
+    environment:
+      - OVERPASS_MODE=clone
+      - OVERPASS_META=${OVERPASS_META:-yes}
+      - OVERPASS_USE_AREAS=${OVERPASS_USE_AREAS:-false}
+      - OVERPASS_RULES_LOAD=${OVERPASS_RULES_LOAD:-10}
+      - OVERPASS_FASTCGI_PROCESSES=${OVERPASS_FASTCGI_PROCESSES:-4}
+      - OVERPASS_RATE_LIMIT=${OVERPASS_RATE_LIMIT:-1}
+      - OVERPASS_MAX_TIMEOUT=${OVERPASS_MAX_TIMEOUT:-60000}
+      - OVERPASS_TIME=${OVERPASS_TIME:-30000}
+      - OVERPASS_SPACE=${OVERPASS_SPACE:-4294967296}
+      - OVERPASS_UPDATE_SLEEP=${OVERPASS_UPDATE_SLEEP:-3600}
+    restart: unless-stopped
