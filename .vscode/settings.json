@@ -17,6 +17,7 @@
         "nologin",
         "nominatim",
         "onthegomap",
+        "openstreetmap",
         "pgsql",
         "planetiler",
         "psql",

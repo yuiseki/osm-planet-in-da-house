@@ -9,10 +9,13 @@ services:
       - "8001:8080"
     environment:
       - THREADS=16
-      - FREEZE=true
+      - FREEZE=false
       - PBF_PATH=/nominatim/data/planet-latest.osm.pbf
       - IMPORT_WIKIPEDIA=/nominatim/data/wikimedia-importance.csv.gz
       - NOMINATIM_FLATNODE_FILE=/nominatim/flatnode/flatnode.file
+      - REPLICATION_URL=https://planet.openstreetmap.org/replication/day/
+      - REPLICATION_REPLICATION_INTERVAL=86400
+      - REPLICATION_MAX_DIFF=20
     volumes:
       - ${PWD}/data/nominatim/planet/flatnode:/nominatim/flatnode
       - ${PWD}/data/nominatim/planet/postgres:/var/lib/postgresql/16/main
@@ -31,6 +34,9 @@ services:
     volumes:
       - ${PWD}/data/overpass/db_planet:/db
     environment:
+      # DB is initialized separately by 8002_overpass.sh (OVERPASS_MODE=init).
+      # clone mode detects the existing init_done marker and starts the server
+      # without re-cloning. For air-gap updates, use update_overpass.sh.
       - OVERPASS_MODE=clone
       - OVERPASS_META=yes
       - OVERPASS_RULES_LOAD=80
