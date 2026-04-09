@@ -1,6 +1,6 @@
 services:
   nominatim:
-    image: mediagis/nominatim:5.2
+    image: mediagis/nominatim:5.3
     container_name: nominatim_planet
     mem_limit: 20g
     memswap_limit: 20g
