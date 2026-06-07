@@ -31,6 +31,7 @@ planetiler-build:
 		--area=planet \
 		--bounds=planet \
 		--osm-path=/data/planetiler/planet-latest.osm.pbf \
+		--download \
 		--fetch-wikidata \
 		--nodemap-type=sparsearray \
 		--nodemap-storage=mmap \
