@@ -1,3 +1,4 @@
+PLANETILER_AI_DATA = /everything/src/github.com/yuiseki/planetiler-ai/data
 PLANETILER_IMAGE = ghcr.io/onthegomap/planetiler:latest
 PLANETILER_MEMORY = --memory 90g --memory-swap -1
 PLANETILER_JAVA = -XX:+UseZGC -Xms28g -Xmx28g
@@ -16,6 +17,10 @@ docker-pull:
 	docker pull mediagis/nominatim:5.1
 	docker pull ghcr.io/nilsnolde/docker-valhalla/valhalla:latest
 	docker pull wiktorn/overpass-api
+
+.PHONY: tileserver-setup-fonts
+tileserver-setup-fonts:
+	cp -r $(PLANETILER_AI_DATA)/fonts data/planetiler/fonts
 
 .PHONY: planetiler-build
 planetiler-build:

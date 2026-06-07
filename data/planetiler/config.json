@@ -3,14 +3,22 @@
     "paths": {
       "root": "",
       "fonts": "fonts",
-      "sprites": "sprites",
-      "icons": "icons",
+      "sprites": "",
+      "styles": "",
       "mbtiles": ""
+    },
+    "serveAllFonts": true
+  },
+  "styles": {
+    "osm-bright": {
+      "style": "osm-bright.json"
+    },
+    "osm-fiord": {
+      "style": "osm-fiord.json"
     }
   },
-  "styles": {},
   "data": {
-    "planet": {
+    "v3": {
       "mbtiles": "planet.mbtiles"
     }
   }
