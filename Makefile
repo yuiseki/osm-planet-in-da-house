@@ -22,13 +22,15 @@ docker-pull:
 tileserver-setup-fonts:
 	cp -r $(PLANETILER_AI_DATA)/fonts data/planetiler/fonts
 
+PLANET_PBF = data/planetiler/planet-latest.osm.pbf
+
 .PHONY: planetiler-build
 planetiler-build:
 	@echo "=== planetiler-build start: $$(date -Iseconds) ==="
 	$(PLANETILER_RUN) \
 		--area=planet \
 		--bounds=planet \
-		--download \
+		--osm-path=/data/planetiler/planet-latest.osm.pbf \
 		--fetch-wikidata \
 		--nodemap-type=sparsearray \
 		--nodemap-storage=mmap \
