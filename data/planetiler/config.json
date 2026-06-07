@@ -1,0 +1,17 @@
+{
+  "options": {
+    "paths": {
+      "root": "",
+      "fonts": "fonts",
+      "sprites": "sprites",
+      "icons": "icons",
+      "mbtiles": ""
+    }
+  },
+  "styles": {},
+  "data": {
+    "planet": {
+      "mbtiles": "planet.mbtiles"
+    }
+  }
+}
