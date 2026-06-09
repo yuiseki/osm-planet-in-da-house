@@ -24,6 +24,32 @@ tileserver-setup-fonts:
 
 PLANET_PBF = data/planetiler/planet-latest.osm.pbf
 
+# Download source files that planetiler needs (except OSM PBF which is handled separately)
+.PHONY: planetiler-download-sources
+planetiler-download-sources:
+	@mkdir -p data/sources
+	@if [ ! -f data/sources/lake_centerline.shp.zip ]; then \
+		echo "Downloading lake_centerline.shp.zip..."; \
+		curl -L -o data/sources/lake_centerline.shp.zip \
+			https://github.com/acalcutt/osm-lakelines/releases/download/v12/lake_centerline.shp.zip; \
+	else \
+		echo "lake_centerline.shp.zip already exists, skipping."; \
+	fi
+	@if [ ! -f data/sources/water-polygons-split-3857.zip ]; then \
+		echo "Downloading water-polygons-split-3857.zip (~750MB)..."; \
+		curl -L -o data/sources/water-polygons-split-3857.zip \
+			https://osmdata.openstreetmap.de/download/water-polygons-split-3857.zip; \
+	else \
+		echo "water-polygons-split-3857.zip already exists, skipping."; \
+	fi
+	@if [ ! -f data/sources/natural_earth_vector.sqlite.zip ]; then \
+		echo "Downloading natural_earth_vector.sqlite.zip..."; \
+		curl -L -o data/sources/natural_earth_vector.sqlite.zip \
+			https://naciscdn.org/naturalearth/packages/natural_earth_vector.sqlite.zip; \
+	else \
+		echo "natural_earth_vector.sqlite.zip already exists, skipping."; \
+	fi
+
 .PHONY: planetiler-build
 planetiler-build:
 	@echo "=== planetiler-build start: $$(date -Iseconds) ==="
@@ -31,8 +57,9 @@ planetiler-build:
 		--area=planet \
 		--bounds=planet \
 		--osm-path=/data/planetiler/planet-latest.osm.pbf \
-		--download \
-		--fetch-wikidata \
+		--lake_centerlines_path=/data/sources/lake_centerline.shp.zip \
+		--water_polygons_path=/data/sources/water-polygons-split-3857.zip \
+		--natural_earth_path=/data/sources/natural_earth_vector.sqlite.zip \
 		--nodemap-type=sparsearray \
 		--nodemap-storage=mmap \
 		--output=/data/planetiler/planet.mbtiles \
