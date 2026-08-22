@@ -1,0 +1,21 @@
+services:
+  nominatim:
+    # 5.1 は据え置き。**イメージのタグが PostgreSQL のメジャーバージョンを決める**ので、
+    # データを作ったときと同じものを使うこと。planet_admin は 5.1 (PG16) で
+    # インポートされており、PG17 のイメージでは同じクラスタを開けない。
+    image: ${NOMINATIM_IMAGE:-mediagis/nominatim:5.1}
+    container_name: ${NOMINATIM_CONTAINER_NAME:-nominatim_pi5}
+    platform: ${NOMINATIM_PLATFORM:-linux/arm64}
+    mem_limit: ${NOMINATIM_MEM_LIMIT:-2g}
+    memswap_limit: ${NOMINATIM_MEM_LIMIT:-2g}
+    shm_size: ${NOMINATIM_SHM_SIZE:-256m}
+    ports:
+      - "${NOMINATIM_PORT:-8001}:8080"
+    volumes:
+      - "${NOMINATIM_PG_DIR}:/var/lib/postgresql/16/main"
+    environment:
+      # インポート済みのクラスタを配るだけ。エントリポイントは
+      # /var/lib/postgresql/16/main/import-finished を見てインポートを飛ばす。
+      - FREEZE=true
+      - THREADS=${NOMINATIM_THREADS:-2}
+    restart: unless-stopped
