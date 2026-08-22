@@ -1,0 +1,31 @@
+[Unit]
+Description=Planet-scale Nominatim geocoder, served from the portable SSD
+Documentation=file:/mnt/tiny_1tb/osm-planet-in-da-house/README.pi5.ja.md
+Requires=docker.service
+After=docker.service
+# Same reason as overpass-pi5: the cluster is 336 GB on a USB SSD, and Docker
+# restarts the container by itself (restart: unless-stopped). Left to itself it
+# can win the race and bind an empty directory in place of the database.
+#
+# PostgreSQL makes that worse than it is for Overpass. Pointed at an empty
+# directory the image sees no import-finished marker and starts importing the
+# planet -- days of work, begun by accident, and the first symptom is a machine
+# that is busy and has no geocoder.
+RequiresMountsFor=/mnt/tiny_1tb
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=yuiseki
+Group=docker
+WorkingDirectory=/mnt/tiny_1tb/osm-planet-in-da-house
+EnvironmentFile=-/etc/default/nominatim-pi5
+ExecStartPre=-/bin/bash ./pi5_nominatim_portable.sh down
+ExecStart=/bin/bash ./pi5_nominatim_portable.sh up
+ExecStop=/bin/bash ./pi5_nominatim_portable.sh down
+# The cluster was not shut down cleanly when it was copied, so the first start
+# runs crash recovery over 336 GB.
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

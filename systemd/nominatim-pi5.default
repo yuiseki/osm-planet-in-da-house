@@ -1,0 +1,23 @@
+# /etc/default/nominatim-pi5 -- what a 4 GB Raspberry Pi 5 can give Nominatim.
+
+# arm64, so nothing is emulated. The tag also fixes the PostgreSQL major
+# version: this cluster is PG16 and was imported by 5.1, and an image shipping
+# PG17 would not find it -- it would see an empty data directory and start
+# importing the planet. pi5_nominatim_portable.sh checks before starting.
+NOMINATIM_PLATFORM=linux/arm64
+NOMINATIM_IMAGE=mediagis/nominatim:5.1
+
+# planet_admin (IMPORT_STYLE=admin), 336 GB. The full planet is 507 GB and
+# would leave 25 GB free on this disk next to Overpass.
+NOMINATIM_DATASET=planet_admin
+
+NOMINATIM_MEM_LIMIT=2g
+# Must be at least shared_buffers, which the image sets to 512MB by default.
+NOMINATIM_SHM_SIZE=1g
+
+# Two, not the image's four. THREADS is the import's parallelism and has
+# nothing to do with serving; the workers have their own variable. Four
+# measured 250 MB of PSS to answer one person's questions one at a time.
+NOMINATIM_WORKERS=2
+
+NOMINATIM_PORT=8001
