@@ -27,6 +27,7 @@ Environment overrides:
   NOMINATIM_MEM_LIMIT
   NOMINATIM_SHM_SIZE
   NOMINATIM_THREADS
+  NOMINATIM_WORKERS     gunicorn の数 (既定 2。イメージの既定は 4)
   NOMINATIM_IMAGE
   NOMINATIM_PLATFORM
 EOF
@@ -34,6 +35,22 @@ EOF
 
 log() {
   printf '[pi5-nominatim] %s\n' "$*" >&2
+}
+
+SUDO=""
+[[ "$(id -u)" != "0" ]] && SUDO="sudo"
+
+# PostgreSQL のデータディレクトリは drwx------ で postgres 所有。**正しく
+# 権限が保たれていれば一般ユーザーからは中が見えない**ので、素の [[ -e ]] では
+# 中身を確かめられず、あるものを「無い」と判断してしまう。
+exists() {
+  [[ -e "$1" ]] || $SUDO test -e "$1"
+}
+
+read_pg_version() {
+  cat "${NOMINATIM_PG_DIR}/PG_VERSION" 2>/dev/null \
+    || $SUDO cat "${NOMINATIM_PG_DIR}/PG_VERSION" 2>/dev/null \
+    || echo '?'
 }
 
 require_cmd() {
@@ -57,7 +74,7 @@ detect_pg_dir() {
   for candidate in "${candidates[@]}"; do
     # import-finished はエントリポイントがインポートを飛ばす判定にも使う印。
     # これが無いものを渡すと、配るつもりが planet の再インポートを始める。
-    if [[ -e "${candidate}/import-finished" && -e "${candidate}/PG_VERSION" ]]; then
+    if exists "${candidate}/import-finished" && exists "${candidate}/PG_VERSION"; then
       printf '%s\n' "${candidate}"
       return 0
     fi
@@ -77,8 +94,11 @@ setup_env() {
   export NOMINATIM_CONTAINER_NAME="${NOMINATIM_CONTAINER_NAME:-nominatim_pi5}"
   export NOMINATIM_PORT="${NOMINATIM_PORT:-8001}"
   export NOMINATIM_MEM_LIMIT="${NOMINATIM_MEM_LIMIT:-2g}"
-  export NOMINATIM_SHM_SIZE="${NOMINATIM_SHM_SIZE:-256m}"
+  # shm は shared_buffers を下回ってはいけない。
+  export NOMINATIM_SHM_SIZE="${NOMINATIM_SHM_SIZE:-1g}"
+  export NOMINATIM_DATA_DIR="${NOMINATIM_DATA_DIR:-${REPO_DIR}/data/nominatim/data}"
   export NOMINATIM_THREADS="${NOMINATIM_THREADS:-2}"
+  export NOMINATIM_WORKERS="${NOMINATIM_WORKERS:-2}"
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-nominatim-pi5}"
 }
 
@@ -96,9 +116,9 @@ run_query() {
 # あれば中のプロセスは存在しないので、消してよい。元データは触らないこと。
 clear_stale_pid() {
   local pid_file="${NOMINATIM_PG_DIR}/postmaster.pid"
-  if [[ -e "${pid_file}" ]]; then
+  if exists "${pid_file}"; then
     log "removing stale ${pid_file}"
-    rm -f "${pid_file}" 2>/dev/null || sudo rm -f "${pid_file}"
+    rm -f "${pid_file}" 2>/dev/null || $SUDO rm -f "${pid_file}"
   fi
 }
 
@@ -108,14 +128,14 @@ preflight() {
 
   log "repo=${REPO_DIR}"
   log "cluster=${NOMINATIM_PG_DIR}"
-  log "PG_VERSION=$(cat "${NOMINATIM_PG_DIR}/PG_VERSION" 2>/dev/null || echo '?')"
-  du -sh "${NOMINATIM_PG_DIR}" 2>/dev/null || true
+  log "PG_VERSION=$(read_pg_version)"
+  $SUDO du -sh "${NOMINATIM_PG_DIR}" 2>/dev/null || true
 
   # データベースは PostgreSQL のメジャーバージョンに縛られる。イメージが
   # 別のバージョンを積んでいると、マウント先が食い違って空のクラスタに見え、
   # 配るつもりが planet の再インポートを始めることになる。
   local want got
-  want="$(cat "${NOMINATIM_PG_DIR}/PG_VERSION" 2>/dev/null || true)"
+  want="$(read_pg_version)"
   got="$(docker run --rm --platform="${NOMINATIM_PLATFORM}" --entrypoint sh \
            "${NOMINATIM_IMAGE}" -c 'ls -d /var/lib/postgresql/*/ 2>/dev/null | head -1' \
          2>/dev/null | sed 's|.*postgresql/||; s|/||' || true)"

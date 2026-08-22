@@ -8,14 +8,31 @@ services:
     platform: ${NOMINATIM_PLATFORM:-linux/arm64}
     mem_limit: ${NOMINATIM_MEM_LIMIT:-2g}
     memswap_limit: ${NOMINATIM_MEM_LIMIT:-2g}
-    shm_size: ${NOMINATIM_SHM_SIZE:-256m}
+    shm_size: ${NOMINATIM_SHM_SIZE:-1g}
     ports:
       - "${NOMINATIM_PORT:-8001}:8080"
     volumes:
       - "${NOMINATIM_PG_DIR}:/var/lib/postgresql/16/main"
+      - "${NOMINATIM_DATA_DIR}:/nominatim/data"
     environment:
       # インポート済みのクラスタを配るだけ。エントリポイントは
       # /var/lib/postgresql/16/main/import-finished を見てインポートを飛ばす。
       - FREEZE=true
       - THREADS=${NOMINATIM_THREADS:-2}
+      # THREADS is the import's parallelism and has nothing to do with serving:
+      # the image starts four gunicorn workers regardless, which measured 250 MB
+      # of PSS on a 4 GB machine. One person asks this one question at a time.
+      - GUNICORN_WORKERS=${NOMINATIM_WORKERS:-2}
+      # config.sh はインポートするかどうかを見る**前に** PBF の指定を要求して
+      # 終了する。既に取り込み済みのクラスタを配るだけでも要る。ファイルの実体は
+      # 不要 (import-finished があるのでインポートには進まない)。
+      - PBF_PATH=${NOMINATIM_PBF_PATH:-/nominatim/data/planet-latest.osm.pbf}
+      # 既定値はインポート用の大きな機械向け (shared_buffers 2GB /
+      # maintenance_work_mem 10GB / effective_cache_size 24GB) で、4GB の機械では
+      # PostgreSQL が起動できない。読むだけなので小さくてよい。
+      - POSTGRES_SHARED_BUFFERS=${NOMINATIM_PG_SHARED_BUFFERS:-512MB}
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=${NOMINATIM_PG_EFFECTIVE_CACHE:-1GB}
+      - POSTGRES_WORK_MEM=${NOMINATIM_PG_WORK_MEM:-16MB}
+      - POSTGRES_MAINTENANCE_WORK_MEM=${NOMINATIM_PG_MAINTENANCE_WORK_MEM:-128MB}
+      - POSTGRES_AUTOVACUUM_WORK_MEM=${NOMINATIM_PG_AUTOVACUUM_WORK_MEM:-64MB}
     restart: unless-stopped
