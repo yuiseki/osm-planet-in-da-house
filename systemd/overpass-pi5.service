@@ -1,0 +1,30 @@
+[Unit]
+Description=Planet-scale Overpass API, served from the portable SSD
+Documentation=file:/mnt/tiny_1tb/osm-planet-in-da-house/README.pi5.ja.md
+Requires=docker.service
+After=docker.service
+# The database is 339 GB on a USB SSD, so there is nothing to serve until that
+# disk is mounted. This also has to be said explicitly because Docker restarts
+# the container on its own (restart: unless-stopped in the compose file), and
+# left to itself it can start before the mount and bind an empty directory in
+# place of the database -- which fails in a way that looks like data loss.
+RequiresMountsFor=/mnt/tiny_1tb
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=yuiseki
+Group=docker
+WorkingDirectory=/mnt/tiny_1tb/osm-planet-in-da-house
+EnvironmentFile=-/etc/default/overpass-pi5
+# Tear down first: if Docker already brought the container up against the
+# mountpoint before the SSD arrived, starting it again would be a no-op and the
+# broken container would stay. Costs a few seconds and removes a whole class of
+# confusing failure.
+ExecStartPre=-/bin/bash ./pi5_overpass_portable.sh down
+ExecStart=/bin/bash ./pi5_overpass_portable.sh up
+ExecStop=/bin/bash ./pi5_overpass_portable.sh down
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

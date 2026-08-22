@@ -86,3 +86,56 @@ OVERPASS_SHM_SIZE=3g OVERPASS_SPACE=8589934592 ./pi5_overpass_portable.sh up
 - `OVERPASS_USE_AREAS=false` が既定。areas 更新ループは Pi に重いので、まずは基本 API を優先する
 - `docker compose up` 時に memory limit の警告が出る場合がある。Pi 側カーネル設定によっては `mem_limit` は実効しない
 - 完全なオフライン運用をする場合、update 用の `OVERPASS_DIFF_URL` は設定しない
+
+## 起動時に自動で立ち上げる (pi5-deck)
+
+`systemd/overpass-pi5.service` と `systemd/overpass-pi5.default` を配備する。
+
+```
+sudo install -m644 systemd/overpass-pi5.service /etc/systemd/system/
+sudo install -m644 systemd/overpass-pi5.default /etc/default/overpass-pi5
+sudo systemctl daemon-reload && sudo systemctl enable --now overpass-pi5.service
+```
+
+SSD は fstab に **`nofail` 付きで**書く。SSD を抜いた状態でも起動が止まらないようにするため。
+
+```
+UUID=<uuid>  /mnt/tiny_1tb  ext4  defaults,nofail,x-systemd.device-timeout=10  0  2
+```
+
+unit の `RequiresMountsFor=/mnt/tiny_1tb` がこの行から生成される `mnt-tiny_1tb.mount` を参照する。
+**これが要る**。Docker は compose の `restart: unless-stopped` によって自前でコンテナを起こすので、
+放っておくとマウント前に起動して DB の代わりに空のディレクトリを掴む。データが消えたように見える
+壊れ方をするので、`ExecStartPre` で一度 down してから up する。
+
+実測 (Raspberry Pi 5 / 4GB / USB3.0 SSD、再起動直後):
+
+| クエリ | 時間 | 要素数 |
+|---|---|---|
+| 渋谷のカフェ 300m | 0.30〜1.32s | 62 |
+| 広島のカフェ 1km | 1.98s | 60 |
+| ニューヨークのカフェ | 2.04s | 52 |
+| 東京 5km 圏のカフェ | 2.39s | 2093 |
+| 広島 bbox 全ノード | 1.50s | 3038 |
+
+### amd64 をエミュレートしないこと
+
+`wiktorn/overpass-api` には **arm64 イメージがある**ので `OVERPASS_PLATFORM=linux/arm64` で動く。
+amd64 機で作った DB をそのまま読めることを確認済み (どちらも 64bit リトルエンディアン)。起動は約8秒。
+
+`linux/amd64` + qemu で動かそうとすると **Pi 5 では失敗する**。qemu-user はホストより小さいゲスト
+ページサイズをエミュレートできず、Pi 5 の既定カーネルは **16KB ページ** (`getconf PAGESIZE` = 16384、
+`uname -r` が `-rpi-2712`)。4KB 整列を要求するオブジェクトのマップに失敗し、nginx が
+`libcrypto.so.3: failed to map segment from shared object` で起動しない。
+**素の `sh` は動いてしまう**ので「エミュレーションは効いている」と見えるのが厄介。
+`kernel=kernel8.img` で 4KB ページのカーネルに切り替えれば動くはずだが、arm64 で足りるので不要。
+
+### 4GB 機向けの設定
+
+リポジトリ既定 (`OVERPASS_MEM_LIMIT=6g` / `OVERPASS_SHM_SIZE=2g`) は 8GB 機向け。pi5-deck では
+地図アプリが約250MB、pi-hear が約150MB 常駐しているので `overpass-pi5.default` のとおり絞る。
+`OVERPASS_SPACE` を既定の 4GB から 1GB に下げているのは、4GB を要求するクエリ1本で機械ごと
+落ちるのを防ぐため。この設定で空きメモリは 3.1Gi のままだった。
+
+なお `mem_limit` は cgroup の都合で「Limitation discarded」と警告が出て効かないことがある。
+`OVERPASS_SPACE` のほうが実効的な歯止めになる。

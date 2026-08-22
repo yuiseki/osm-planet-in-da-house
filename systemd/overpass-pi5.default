@@ -1,0 +1,23 @@
+# /etc/default/overpass-pi5 -- what a 4 GB Raspberry Pi 5 can actually give
+# Overpass. The repo defaults assume an 8 GB machine.
+
+# Run the arm64 image, not the amd64 one under emulation.
+#
+# qemu-user cannot emulate a guest page size smaller than the host's, and the
+# Pi 5's stock kernel uses 16 KB pages. x86_64 objects that need 4 KB alignment
+# then fail to map: nginx died on "libcrypto.so.3: failed to map segment from
+# shared object" every time, while a plain `sh` ran fine, which is what makes
+# the failure look mysterious. wiktorn/overpass-api publishes an arm64 image,
+# so none of that is necessary -- and it starts in about 8 seconds.
+OVERPASS_PLATFORM=linux/arm64
+
+# 4 GB total, of which the map app holds ~250 MB and pi-hear ~150 MB.
+OVERPASS_MEM_LIMIT=2500m
+OVERPASS_SHM_SIZE=512m
+
+# Per-query space limit, in bytes. 1 GB rather than the 4 GB default: on this
+# machine a query that wanted 4 GB would take the whole box down with it.
+OVERPASS_SPACE=1073741824
+
+OVERPASS_FASTCGI_PROCESSES=2
+OVERPASS_PORT=8002
