@@ -2,7 +2,7 @@ services:
   overpass:
     image: ${OVERPASS_IMAGE:-wiktorn/overpass-api}
     container_name: ${OVERPASS_CONTAINER_NAME:-overpass_planet_pi5}
-    platform: ${OVERPASS_PLATFORM:-linux/amd64}
+    platform: ${OVERPASS_PLATFORM:-linux/arm64}
     mem_limit: ${OVERPASS_MEM_LIMIT:-6g}
     memswap_limit: ${OVERPASS_MEM_LIMIT:-6g}
     shm_size: ${OVERPASS_SHM_SIZE:-2g}
@@ -21,4 +21,11 @@ services:
       - OVERPASS_TIME=${OVERPASS_TIME:-30000}
       - OVERPASS_SPACE=${OVERPASS_SPACE:-4294967296}
       - OVERPASS_UPDATE_SLEEP=${OVERPASS_UPDATE_SLEEP:-3600}
+      # The image defaults this to no, which rejects a query identical to one
+      # already running or just run with "Dispatcher_Client::request_read_and_idx::
+      # duplicate_query". An agent retrying, or two clients asking the same
+      # thing, then fails for a reason that reads like corruption. The upstream
+      # default protects a public instance from being pinned by repeats; a
+      # carried instance has no strangers on it.
+      - OVERPASS_ALLOW_DUPLICATE_QUERIES=${OVERPASS_ALLOW_DUPLICATE_QUERIES:-yes}
     restart: unless-stopped

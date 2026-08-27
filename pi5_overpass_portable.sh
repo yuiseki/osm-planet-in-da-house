@@ -29,6 +29,7 @@ Environment overrides:
   OVERPASS_SPACE
   OVERPASS_USE_AREAS
   OVERPASS_RULES_LOAD
+  OVERPASS_ALLOW_DUPLICATE_QUERIES
 EOF
 }
 
@@ -69,7 +70,7 @@ setup_env() {
   local db_dir
 
   export OVERPASS_IMAGE="${OVERPASS_IMAGE:-wiktorn/overpass-api}"
-  export OVERPASS_PLATFORM="${OVERPASS_PLATFORM:-linux/amd64}"
+  export OVERPASS_PLATFORM="${OVERPASS_PLATFORM:-linux/arm64}"
   export OVERPASS_CONTAINER_NAME="${OVERPASS_CONTAINER_NAME:-overpass_planet_pi5}"
   db_dir="$(detect_db_dir)"
   export OVERPASS_DB_DIR="${db_dir}"
@@ -84,6 +85,7 @@ setup_env() {
   export OVERPASS_USE_AREAS="${OVERPASS_USE_AREAS:-false}"
   export OVERPASS_RULES_LOAD="${OVERPASS_RULES_LOAD:-10}"
   export OVERPASS_UPDATE_SLEEP="${OVERPASS_UPDATE_SLEEP:-3600}"
+  export OVERPASS_ALLOW_DUPLICATE_QUERIES="${OVERPASS_ALLOW_DUPLICATE_QUERIES:-yes}"
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-overpass-pi5}"
 }
 
