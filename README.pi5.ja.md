@@ -118,6 +118,35 @@ unit の `RequiresMountsFor=/mnt/tiny_1tb` がこの行から生成される `mn
 | 東京 5km 圏のカフェ | 2.39s | 2093 |
 | 広島 bbox 全ノード | 1.50s | 3038 |
 
+### area クエリを使う
+
+`OVERPASS_USE_AREAS` は supervisord の 2 つのプログラムを一括で制御する。
+
+```
+[program:dispatcher_areas]  area クエリに応答する。軽い
+[program:areas_rules]       rules_loop.sh。area の再計算。Pi には重い
+```
+
+`false` を既定にしているのは後者を避けるためだが、前者まで止まるので
+`area[...]` を使うクエリが `The dispatcher is turned off` で失敗する。
+DB 側の area データ (`area_blocks.bin` ほか、母艦で構築したもの) は
+コピーされていて揃っているので、生成し直す必要はない。
+
+`pi5_overpass_areas_dispatcher.sh` が前者だけを起動し、居なければ入れ直す。
+`systemd/overpass-areas-pi5.service` で常駐させる。
+
+```bash
+install -Dm755 pi5_overpass_areas_dispatcher.sh ~/bin/overpass-areas-dispatcher.sh
+sudo cp systemd/overpass-areas-pi5.service /etc/systemd/system/
+sudo systemctl enable --now overpass-areas-pi5.service
+```
+
+判定に落とし穴がある。`dispatcher --areas --status` は areas dispatcher が
+動いていなくても成功するので、死活判定には使えない。スクリプトはホスト側の
+`ps` でプロセスの有無を見ている。コンテナ内に `ps` も `pkill` も無い。
+
+pi5-w-1 (8GB, arm64) での実測は area クエリ 0.61s / bbox 0.24s。
+
 ### amd64 をエミュレートしないこと
 
 `wiktorn/overpass-api` には **arm64 イメージがある**ので `OVERPASS_PLATFORM=linux/arm64` で動く。

@@ -1,0 +1,14 @@
+[Unit]
+Description=Overpass areas dispatcher for the carried Pi 5 instance
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=yuiseki
+ExecStart=/home/yuiseki/bin/overpass-areas-dispatcher.sh
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
