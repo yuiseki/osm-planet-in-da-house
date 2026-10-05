@@ -32,3 +32,7 @@ if [ "$found_any" = false ]; then
 fi
 
 echo "Taginfo databases prepared in $DEST_DIR"
+
+# The download is missing create_extra_indexes and update_master. Without
+# them search returns nothing and in_wiki is false for every key.
+"$(dirname "$0")/taginfo_post_download.sh" "$DEST_DIR"
